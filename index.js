@@ -188,8 +188,8 @@ const getChatMessages = async (chat) => {
   }
 };
 
-const phone = "+5512981420885";
-const password = "87654321";
+const phone = process.env.TEST_PHONE_NUMBER;
+const password = process.env.TFA_PASSWORD;
 
 (async () => {
   const user = await getUser();
