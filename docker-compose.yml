@@ -1,0 +1,17 @@
+version: '3.6'
+
+services:
+  poc:
+    entrypoint: './entrypoint.sh'
+    env_file: '.env'
+    stdin_open: true
+    tty: true
+    volumes:
+      - .:/app
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        - USER
+    user: "${USER}:${UID}"
+    command: 'node index.js'

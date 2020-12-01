@@ -1,0 +1,7 @@
+FROM node:14
+
+ARG USER
+
+WORKDIR /app
+
+RUN mkdir /home/${USER} && usermod -d /home/${USER} -l ${USER} node && chown -R ${USER} /home/${USER}
