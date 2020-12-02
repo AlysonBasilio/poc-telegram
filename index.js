@@ -1,11 +1,10 @@
-// TODO
-
 const api_id = process.env.API_ID;
 const api_hash = process.env.API_HASH;
 
 const { MTProto, getSRPParams } = require("@mtproto/core");
 const readline = require("readline");
 const { pluck } = require("ramda");
+
 const mtproto = new MTProto({
   api_id: api_id,
   api_hash: api_hash,
@@ -109,10 +108,7 @@ const selectChat = async (chats) => {
 
 const getChat = async () => {
   const dialogs = await api.call("messages.getAllChats", {
-    except_ids: [],
-    // offset_peer: {
-    //   _: "inputPeerEmpty",
-    // },
+    except_ids: []
   });
   const { chats } = dialogs;
   const selectedChat = await selectChat(chats);
@@ -127,7 +123,7 @@ const askForCode = () => {
       output: process.stdout,
     });
 
-    rl.question("Please enter passcode for " + phone.num + ":\n", (num) => {
+    rl.question("Please enter passcode for " + phone + ":\n", (num) => {
       rl.close();
       resolve(num);
     });
@@ -147,6 +143,21 @@ const collectMessage = () => {
     });
   });
 };
+
+const askUserNextStep = () => {
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    rl.question("Select your next action\nSend Message To Chat (s)\nGet chat messages (g)\nExit (e):\n", (message) => {
+      rl.close();
+      resolve(message);
+    });
+  });
+};
+
 const mountPeerFromChat = (chat) => {
   if (chat.migrated_to._ === 'inputChannel') {
     return {
@@ -231,8 +242,22 @@ const password = process.env.TFA_PASSWORD;
     }
   }
 
-  const chat = await getChat();
+  let userWantsToExit = 'no';
 
-  // await sendMessageToChat(chat);
-  await getChatMessages(chat);
+  while (userWantsToExit !== 'e') {
+    const chat = await getChat();
+
+    userWantsToExit = await askUserNextStep();
+    switch (userWantsToExit) {
+      case 's':
+        await sendMessageToChat(chat);
+        break;
+      case 'g':
+        await getChatMessages(chat);
+        break;
+
+      default:
+        break;
+    }
+  }
 })();
