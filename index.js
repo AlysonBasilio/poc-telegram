@@ -1,5 +1,5 @@
-const api_id = process.env.API_ID;
-const api_hash = process.env.API_HASH;
+const api_id = '2471405';
+const api_hash = '3514b70b98cf42f6eca209e3d2018fde';
 
 const { MTProto, getSRPParams } = require("@mtproto/core");
 const readline = require("readline");
@@ -107,9 +107,15 @@ const selectChat = async (chats) => {
 };
 
 const getChat = async () => {
-  const dialogs = await api.call("messages.getAllChats", {
-    except_ids: []
+  const dialogs = await api.call("messages.getDialogs", {
+    offset_peer: {
+      _: 'inputPeerEmpty',
+    },
+    limit: 10,
+    offset_date: null,
+    offset_id: 0
   });
+  console.log('dialogs:    ', dialogs);
   const { chats } = dialogs;
   const selectedChat = await selectChat(chats);
   console.log(selectedChat);
@@ -199,8 +205,8 @@ const getChatMessages = async (chat) => {
   }
 };
 
-const phone = process.env.TEST_PHONE_NUMBER;
-const password = process.env.TFA_PASSWORD;
+const phone = '+5512982473545';
+const password = '385693';
 
 (async () => {
   const user = await getUser();
@@ -238,7 +244,7 @@ const password = process.env.TFA_PASSWORD;
 
       const authResult = await checkPassword({ srp_id, A, M1 });
 
-      console.log(`authResult:`, authResult);
+      console.log(`authResult2:`, authResult);
     }
   }
 
