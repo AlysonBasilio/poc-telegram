@@ -159,7 +159,12 @@ const askUserNextStep = () => {
 };
 
 const mountPeerFromChat = (chat) => {
-  if (chat.migrated_to._ === 'inputChannel') {
+  if (chat._ === 'chat') {
+    return {
+      _: 'inputPeerChat',
+      chat_id: chat.id,
+    }
+  } else if (chat.migrated_to && chat.migrated_to._ === 'inputChannel') {
     return {
       _: 'inputPeerChannel',
       channel_id: chat.migrated_to.channel_id,
