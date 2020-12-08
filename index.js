@@ -106,6 +106,20 @@ const selectChat = async (chats) => {
   return chats[+chatIndex];
 };
 
+const selectChatOrUser = async (chats, users) => {
+  const chatNames = pluck("title", chats);
+  const userNames = pluck("first_name", users);
+  console.log("**Your dialogs list**");
+  chatNames.map((name, id) => console.log(`c${id}  ${name}`));
+  userNames.map((name, id) => console.log(`u${id}  ${name}`));
+  console.log("Select dialog by index");
+  const chatIndex = await inputField("index");
+  if (chatIndex[0] === 'c') {
+    return chats[+chatIndex[1]];
+  }
+  return users[+chatIndex[1]];
+};
+
 const getChat = async () => {
   const dialogs = await api.call("messages.getAllChats", {
     except_ids: []
@@ -114,6 +128,23 @@ const getChat = async () => {
   const selectedChat = await selectChat(chats);
   console.log(selectedChat);
   return selectedChat;
+};
+
+const getDialogs = async () => {
+  const { chats, count, dialogs, messages, users } = await api.call("messages.getDialogs", {
+    offset_peer: {
+      _: 'inputPeerEmpty',
+    },
+    limit: 5,
+    offset_date: null,
+    offset_id: 0
+  });
+  // console.log(new Set(dialogs.map((dialog) => dialog.peer._)));
+  // Set(3) { 'peerChannel', 'peerChat', 'peerUser' }
+
+  const selectedChatOrUser = await selectChatOrUser(chats, users);
+  console.log(selectedChatOrUser);
+  return selectedChatOrUser;
 };
 
 const askForCode = () => {
@@ -169,6 +200,12 @@ const mountPeerFromChat = (chat) => {
       _: 'inputPeerChannel',
       channel_id: chat.migrated_to.channel_id,
       access_hash: chat.migrated_to.access_hash,
+    }
+  } else if (chat._ === 'user') {
+    return {
+      _: 'inputPeerUser',
+      user_id: chat.id,
+      access_hash: chat.access_hash,
     }
   }
 
@@ -250,7 +287,8 @@ const password = process.env.TFA_PASSWORD;
   let userWantsToExit = 'no';
 
   while (userWantsToExit !== 'e') {
-    const chat = await getChat();
+    // const chat = await getChat();
+    const chat = await getDialogs();
 
     userWantsToExit = await askUserNextStep();
     switch (userWantsToExit) {
